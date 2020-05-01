@@ -14,13 +14,21 @@ module TraitImpl
 
   private
   def getAvailableMethods(trait)
-    trait.instance_methods(false)
+    if (trait.is_a? Class)
+      trait.instance_methods(false)
+    else
+      trait.singleton_methods(false) + trait.class.instance_methods(false)
+    end
   end
 
   private
   def makeDefinition(method, trait)
     if (!instance.respond_to? method)
-      instance.define_singleton_method(method,&trait.new.method(method))
+      if (trait.is_a? Class)
+        instance.define_singleton_method(method,&trait.new.method(method))
+      else
+        instance.define_singleton_method(method,&trait.method(method))
+      end
     end
   end
 end

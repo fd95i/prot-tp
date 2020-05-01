@@ -3,7 +3,7 @@ class TraitFactory
   def self.define(&b)
     clase = Class.new(TraitAbstraction)
     clase.class_eval &b
-    clase
+    clase.new
   end
 
   private
