@@ -1,18 +1,20 @@
-class TraitFactory
+require_relative 'simple_trait'
+
+class TraitFactory < SimpleTrait
   private
   def self.define(&b)
-    clase = Class.new(TraitAbstraction)
-    clase.class_eval &b
-    clase.new
+    instance = self.new
+    instance.instance_eval &b
+    instance
   end
 
   private
-  def self.nombre(nombre)
+  def nombre(nombre)
     Object.const_set(nombre,self)
   end
 
   private
-  def self.metodo(nombre,&bloque)
-    self.define_method(nombre,bloque)
+  def metodo(nombre,&bloque)
+    self.define_singleton_method(nombre,bloque)
   end
 end

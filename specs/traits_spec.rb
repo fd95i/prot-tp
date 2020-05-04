@@ -1,4 +1,5 @@
-require_relative '../src/mi_clase'
+require_relative '../src/simple_trait'
+require_relative '../src/composite_trait'
 require_relative '../src/trait_factory'
 require 'rspec'
 
@@ -12,7 +13,7 @@ describe 'traits' do
 
   TraitFactory.define do
     nombre :MiTrait
-    metodo :metodo1 do #TODO resolver test de la excepción con la resolución del conflicto
+    metodo :metodo1 do
       "Hola"
     end
     metodo :metodo2 do |un_numero|
@@ -31,23 +32,35 @@ describe 'traits' do
   end
 
   let(:ejemplo1) do
-    MiClase.new MiTrait
+    class MiClase
+      uses MiTrait
+
+      def metodo1
+        "mundo"
+      end
+    end
+    MiClase.new
   end
 
   let(:ejemplo2) do
-    MiClase.new MiTraitSafe + MiOtroTrait
+    class MiClase
+      uses MiTraitSafe + MiOtroTrait
+    end
+    MiClase.new
   end
 
   let(:ejemplo3) do
-    MiClase.new MiTrait + (MiOtroTrait - :metodo1)
+    class MiClase
+      uses MiTrait + (MiOtroTrait - :metodo3)
+    end
+    MiClase.new
   end
 
   let(:ejemplo4) do
-    MiClase.new MiTrait .<<(:metodo2,:saludo)
-  end
-
-  it 'deberia no tener metodos' do
-    expect(MiClase.new.singleton_methods(false)).to eq([])
+    class MiClase
+      uses MiTrait  << (:metodo2 >> :saludo)
+    end
+    MiClase.new
   end
 
   it 'deberia tener los metodos de los traits inventados' do
@@ -59,14 +72,14 @@ describe 'traits' do
     expect(ejemplo2.metodo3).to eq("zaraza")
   end
 
-  it 'deberia sumar' do
-    expect do
-      MiTrait + MiOtroTrait
-    end.to raise_error RuntimeError, "Lanzo una excepcion"
-  end
-
+  # it 'deberia sumar' do
+  #   expect do
+  #     MiTrait + MiOtroTrait
+  #   end.to raise_error RuntimeError, "Lanzo una excepcion"
+  # end
+  #
   it 'deberia restar' do
-    expect( ejemplo3.respond_to? :metodo3).to eq(true)
+    expect(ejemplo3.respond_to? :metodo3).to eq(false)
   end
 
   it 'deberia hacer alias' do
